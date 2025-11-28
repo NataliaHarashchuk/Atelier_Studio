@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  MASTER
+  GUEST
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
+enum OrderType {
+  SEWING
+  REPAIR
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      UserRole @default(GUEST)
+  employee  Employee?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Employee {
+  id        Int      @id @default(autoincrement())
+  name      String
+  position  String
+  salary    Decimal  @db.Decimal(10, 2)
+  phone     String
+  email     String   @unique
+  userId    Int?     @unique
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("employees")
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String?
+  phone     String
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("clients")
+}
+
+model Order {
+  id                 Int         @id @default(autoincrement())
+  title              String
+  type               OrderType
+  deadline           DateTime
+  photoUrl           String?
+  price              Decimal     @db.Decimal(10, 2)
+  description        String?     @db.Text
+  status             OrderStatus @default(PENDING)
+  clientId           Int
+  client             Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assignedEmployeeId Int?
+  assignedEmployee   Employee?   @relation(fields: [assignedEmployeeId], references: [id], onDelete: SetNull)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+model Material {
+  id           Int      @id @default(autoincrement())
+  name         String
+  quantity     Decimal  @db.Decimal(10, 2)
+  unit         String
+  pricePerUnit Decimal  @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("materials")
+}
