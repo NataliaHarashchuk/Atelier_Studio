@@ -58,8 +58,8 @@ export const createBackup = async (): Promise<{
     await execAsync(command, {
       env: {
         ...process.env,
-        PGPASSWORD: dbConfig.password
-      }
+        PGPASSWORD: dbConfig.password,
+      },
     });
 
     const stats = await fs.stat(filepath);

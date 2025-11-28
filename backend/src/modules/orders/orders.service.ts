@@ -13,7 +13,6 @@ import path from "path";
 import fs from "fs/promises";
 
 export class OrdersService {
-
   private readonly orderInclude = {
     client: {
       select: {
@@ -32,16 +31,23 @@ export class OrdersService {
     },
   };
 
-  private async validateEntities(clientId?: number, employeeId?: number | null) {
+  private async validateEntities(
+    clientId?: number,
+    employeeId?: number | null,
+  ) {
     if (clientId) {
-      const client = await prisma.client.findUnique({ where: { id: clientId } });
+      const client = await prisma.client.findUnique({
+        where: { id: clientId },
+      });
       if (!client) {
         throw new AppError("Client not found", 404);
       }
     }
 
     if (employeeId) {
-      const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
+      const employee = await prisma.employee.findUnique({
+        where: { id: employeeId },
+      });
       if (!employee) {
         throw new AppError("Assigned employee not found", 404);
       }
@@ -251,7 +257,6 @@ export class OrdersService {
     return updatedOrder;
   }
 
-
   async updateOrderStatus(
     id: number,
     data: UpdateOrderStatusDto,
@@ -334,7 +339,6 @@ export class OrdersService {
     return updatedOrder;
   }
 
-
   async deleteOrder(id: number): Promise<void> {
     const order = await prisma.order.findUnique({
       where: { id },
@@ -348,7 +352,6 @@ export class OrdersService {
       try {
         const photoPath = path.join(process.cwd(), order.photoUrl);
         await fs.unlink(photoPath);
-
       } catch (error) {
         console.error("Failed to delete photo:", error);
       }
